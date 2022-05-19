@@ -19,3 +19,11 @@ def conv1D(A, W):
         for s in range((n-fw+1)*30):
             Z[:,s:s+fw] = np.sum(np.multiply(A[:, s:s+fw], W[f,:]))
     return Z
+
+def softmax(Z):
+    e = np.exp(Z)
+    return e / np.sum(e)
+
+def hoeffding(X,delta):
+    min,max = np.amin(np.sum(X,axis=1)),np.amax(np.sum(X,axis=1))
+    return np.sqrt(np.square(max-min)*np.log(2/delta)/(2*X.size))

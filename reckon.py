@@ -1,44 +1,41 @@
 # imports
 from utils.experiments import *
 from utils.io import *
-from models.fc import *
+from models.selex import SELEX_Net
+from models.mnist import MNIST_Net
 
 
 # numpy configuration
-rng = np.random.default_rng(4)
 np.set_printoptions(precision=5)
 
 
-# Test Model
+# test Model
 def main(args):
     # clear screen & display application info
     greet()
 
-    # import SELEX data
-    files = [
-        '/HHHHHHHHHHHH_B1mut_control_strategy2_R2_top_seq.csv',
-        '/HHHHHHHHHHHH_B1mut_control_strategy2_R7_top_seq.csv',
-        '/HHHHHHHHHHHH_B1mut_control_strategy2_R9_top_seq.csv',
-        '/HHHHHHHHHHHH_B1mut_control_strategy2_R11_top_seq.csv',
-        '/HHHHHHHHHHHH_control_strategy1_R3_top_seq.csv',
-        '/HHHHHHHHHHHH_control_strategy1_R6_top_seq.csv',
-        '/HHHHHHHHHHHH_control_strategy1_R9_top_seq.csv'
-    ]
-    seqs, labels = combine_seq_rounds(files, threshold)     # encode & combine sequencing data; assign labels per threshold
-    m, n = seqs.shape
+    # import, encode & combine SELEX sequencing data; assign labels per threshold
+    # X_train, Y_train, X_test, Y_test = import_SELEX_data(7000, 0.9)
+    # display_example(X_train, Y_train, 'sequence')
 
-    # define hyperparameters for multiple experiments
+
+    # import MNIST train & test datasets
+    X_train, Y_train, X_test, Y_test = import_mnist_data()
+    display_example(X_train, Y_train, 'mnist')
+
+    # define hyperparameters for multiple experiments: print frequency, optimization iterations, learning rate,
+    #   regularization weight, train/test ratio, hidden layer width, classification boundary
     experiments = [
-        [10000, 50000, 0.001, 0.001, 0.90, 7000, 25, 0.8, 'Genomic - Baseline'],
-        [10000, 50000, 0.0005, 0.001, 0.90, 7000, 25, 0.8, 'Genomic - Low Learning Rate'],
-        [10000, 50000, 0.005, 0.001, 0.90, 7000, 25, 0.8, 'Genomic - High Learning Rate']
+        [2000, 10000, 0.001, 0.001, 25, 'MNIST Classification w/ Selex Model', 'Baseline'],
+        # [2000, 10000, 0.001, 0.001, 25, 'SELEX Binding Affinity Classification', 'Baseline'],
+        # [2000, 10000, 0.001, 0.001, 25, 'MNIST Digit Classification', 'Baseline'],
     ]
 
     # run experiments
     i = 0
     while i < len(experiments):
-        experiment_data = create_experiment(experiments[i], i)
-        acc_ratio, acc_range = run_experiment(FC_Net, experiment_data, seqs, labels)
+        experiment_params = create_experiment(experiments[i], i)
+        acc_ratio, acc_range = run_experiment(SELEX_Net, experiment_params, X_train, Y_train, X_test, Y_test)
         i += 1
 
     # MAIN END
